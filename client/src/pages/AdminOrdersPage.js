@@ -5,7 +5,7 @@ function AdminOrdersPage() {
     return ( 
         <div>
             <NavBar>
-                <AdminOrders></AdminOrders>
+                <AdminOrders/>
             </NavBar>
         </div>
      );

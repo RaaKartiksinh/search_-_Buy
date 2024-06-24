@@ -688,6 +688,28 @@ const UpdateByPatch = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+const search = async (req, res) => {
+  try {
+    const { title } = req.query;
+    console.log(title);
+    const result = await productModel.getProduct({
+      $or: [
+        { title: { $regex: title, $options: "i" } },
+        { category: { $regex: title, $options: "i" } },
+      ],
+    });
+
+    if (result.length > 0) {
+      res.status(200).json(result);
+    } else {
+      const result = await productModel.getProduct({})
+      res.status(200).json(result);
+    }
+  } catch (error) {
+    console.error("Internal Server Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -695,4 +717,5 @@ module.exports = {
   getProudct,
   getById,
   UpdateByPatch,
+  search,
 };

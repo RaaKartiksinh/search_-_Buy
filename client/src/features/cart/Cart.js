@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Grid } from "react-loader-spinner";
 import Modal from "../common/Modal";
+import Loder from "../Loder/Loder";
 
 export default function Cart() {
   const dispatch = useDispatch();
@@ -43,23 +44,16 @@ export default function Cart() {
       )}
 
       <div>
-        <div className="mx-auto mt-12 bg-white max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto mt-12 bg-white max-w-7xl px-4 sm:px-6 lg:px-8 rounded-xl  ">
           <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
             <h1 className="text-4xl my-5 font-bold tracking-tight text-gray-900">
               Cart
             </h1>
             <div className="flow-root">
               {status === "loading" ? (
-                <Grid
-                  height="80"
-                  width="80"
-                  color="rgb(79, 70, 229) "
-                  ariaLabel="grid-loading"
-                  radius="12.5"
-                  wrapperStyle={{}}
-                  wrapperClass=""
-                  visible={true}
-                />
+                <>
+                  <Loder isLoding={status === "loading"} />
+                </>
               ) : null}
               <ul className="-my-6 divide-y divide-gray-200">
                 {items.map((item) => (
@@ -85,24 +79,26 @@ export default function Cart() {
                         </p>
                       </div>
                       <div className="flex flex-1 items-end justify-between text-sm">
-                        <div className="text-gray-500">
-                          <label
-                            htmlFor="quantity"
-                            className="inline mr-5 text-sm font-medium leading-6 text-gray-900"
-                          >
-                            Qty
-                          </label>
-                          <select
-                            onChange={(e) => handleQuantity(e, item)}
-                            value={item.quantity}
-                          >
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                          </select>
-                        </div>
+                        {item && item.product && item.product.stock > 0 && (
+                          <div className="text-gray-500">
+                            <label
+                              htmlFor="quantity"
+                              className="inline mr-5 text-sm font-medium leading-6 text-gray-900"
+                            >
+                              Qty
+                            </label>
+                            <select
+                              onChange={(e) => handleQuantity(e, item)}
+                              value={item.quantity}
+                            >
+                              <option value="1">1</option>
+                              <option value="2">2</option>
+                              <option value="3">3</option>
+                              <option value="4">4</option>
+                              <option value="5">5</option>
+                            </select>
+                          </div>
+                        )}
 
                         <div className="flex">
                           <Modal
@@ -119,7 +115,7 @@ export default function Cart() {
                               setOpenModal(item.id);
                             }}
                             type="button"
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                            className="font-medium text-secondary hover:text-textcolor"
                           >
                             Remove
                           </button>
@@ -147,7 +143,7 @@ export default function Cart() {
             <div className="mt-6">
               <Link
                 to="/checkout"
-                className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                className="flex items-center justify-center rounded-md border border-transparent bg-secondary px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-textcolor"
               >
                 Checkout
               </Link>
@@ -158,7 +154,7 @@ export default function Cart() {
                 <Link to="/">
                   <button
                     type="button"
-                    className="font-medium text-indigo-600 hover:text-indigo-500"
+                    className="font-medium text-secondary hover:text-textcolor "
                   >
                     Continue Shopping
                     <span aria-hidden="true"> &rarr;</span>

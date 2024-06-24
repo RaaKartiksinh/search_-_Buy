@@ -67,7 +67,7 @@ function Checkout() {
         status: "pending",
       };
       console.log(order);
-      dispatch(createOrderAsync(order));  
+      dispatch(createOrderAsync(order));
     } else {
       alert("Enter Address and Payment method");
     }
@@ -76,7 +76,7 @@ function Checkout() {
   return (
     <>
       {!items.length && <Navigate to="/" replace={true}></Navigate>}
-      {currentOrder && (
+      {currentOrder && currentOrder.id && (
         <Navigate
           to={`/order-success/${currentOrder.id}`}
           replace={true}
@@ -87,7 +87,7 @@ function Checkout() {
           <div className="lg:col-span-3">
             {/* This form is for address */}
             <form
-              className="bg-white px-5 py-12 mt-12"
+              className="bg-white px-7 py-12 mt-12 rounded-xl "
               noValidate
               onSubmit={handleSubmit((data) => {
                 console.log(data);
@@ -282,56 +282,57 @@ function Checkout() {
                   </button>
                   <button
                     type="submit"
-                    className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    className="rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-textcolor focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
                     Add Address
                   </button>
                 </div>
               </div>
             </form>
-            <div className="border-b border-gray-900/10 pb-12">
-              <h2 className="text-base font-semibold leading-7 text-gray-900">
+            <div className="border-b border-gray-900/10 pb-12 mt-5">
+              <h2 className="text-2xl font-poppins leading-7 text-gray-900  ">
                 Addresses
               </h2>
               <p className="mt-1 text-sm leading-6 text-gray-600">
                 Choose from Existing addresses
               </p>
               <ul>
-                {user && user.addresses.map((address, index) => (
-                  <li
-                    key={index}
-                    className="flex justify-between gap-x-6 px-5 py-5 border-solid border-2 border-gray-200"
-                  >
-                    <div className="flex gap-x-4">
-                      <input
-                        onChange={handleAddress}
-                        name="address"
-                        type="radio"
-                        value={index}
-                        className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                      <div className="min-w-0 flex-auto">
-                        <p className="text-sm font-semibold leading-6 text-gray-900">
-                          {address.name}
+                {user &&
+                  user.addresses.map((address, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between gap-x-6 px-5 py-5 border-solid border-2 border-gray-200"
+                    >
+                      <div className="flex gap-x-4">
+                        <input
+                          onChange={handleAddress}
+                          name="address"
+                          type="radio"
+                          value={index}
+                          className="h-4 w-4 border-gray-300 text-textcolor focus:ring-secondary"
+                        />
+                        <div className="min-w-0 flex-auto">
+                          <p className="text-sm font-semibold leading-6 text-gray-900">
+                            {address.name}
+                          </p>
+                          <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                            {address.street}
+                          </p>
+                          <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                            {address.pinCode}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="hidden sm:flex sm:flex-col sm:items-end">
+                        <p className="text-sm leading-6 text-gray-900">
+                          Phone: {address.phone}
                         </p>
-                        <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                          {address.street}
-                        </p>
-                        <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                          {address.pinCode}
+                        <p className="text-sm leading-6 text-gray-500">
+                          {address.city}
                         </p>
                       </div>
-                    </div>
-                    <div className="hidden sm:flex sm:flex-col sm:items-end">
-                      <p className="text-sm leading-6 text-gray-900">
-                        Phone: {address.phone}
-                      </p>
-                      <p className="text-sm leading-6 text-gray-500">
-                        {address.city}
-                      </p>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  ))}
               </ul>
 
               <div className="mt-10 space-y-10">
@@ -351,7 +352,7 @@ function Checkout() {
                         value="cash"
                         type="radio"
                         checked={paymentMethod === "cash"}
-                        className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                        className="h-4 w-4 border-gray-300 text-textcolor focus:ring-secondary"
                       />
                       <label
                         htmlFor="cash"
@@ -368,7 +369,8 @@ function Checkout() {
                         checked={paymentMethod === "card"}
                         value="card"
                         type="radio"
-                        className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                        disabled
+                        className="h-4 w-4 border-gray-300 text-textcolor focus:ring-secondary"
                       />
                       <label
                         htmlFor="card"
@@ -382,8 +384,9 @@ function Checkout() {
               </div>
             </div>
           </div>
+
           <div className="lg:col-span-2">
-            <div className="mx-auto mt-12 bg-white max-w-7xl px-2 sm:px-2 lg:px-4">
+            <div className="mx-auto mt-12 bg-white max-w-7xl px-2 sm:px-2 lg:px-4 rounded-xl ">
               <div className="border-t border-gray-200 px-0 py-6 sm:px-0">
                 <h1 className="text-4xl my-5 font-bold tracking-tight text-gray-900">
                   Cart
@@ -440,7 +443,7 @@ function Checkout() {
                               <button
                                 onClick={(e) => handleRemove(e, item.id)}
                                 type="button"
-                                className="font-medium text-indigo-600 hover:text-indigo-500"
+                                className="font-medium text-secondary hover:text-textcolor"
                               >
                                 Remove
                               </button>
@@ -468,7 +471,7 @@ function Checkout() {
                 <div className="mt-6">
                   <div
                     onClick={handleOrder}
-                    className="flex cursor-pointer items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                    className="flex cursor-pointer items-center justify-center rounded-md border border-transparent bg-secondary px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-textcolor"
                   >
                     Order Now
                   </div>
@@ -479,7 +482,7 @@ function Checkout() {
                     <Link to="/">
                       <button
                         type="button"
-                        className="font-medium text-indigo-600 hover:text-indigo-500"
+                        className="font-medium text-secondary hover:text-textcolor"
                       >
                         Continue Shopping
                         <span aria-hidden="true"> &rarr;</span>

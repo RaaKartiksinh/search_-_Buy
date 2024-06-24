@@ -12,17 +12,12 @@ import {
 } from "../productSlice";
 import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  ChevronDownIcon,
-  FunnelIcon,
-  MinusIcon,
-  PlusIcon,
-  Squares2X2Icon,
-} from "@heroicons/react/20/solid";
+import { FunnelIcon, MinusIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { ITEMS_PER_PAGE } from "../../../app/constants";
 import Pagination from "../../common/Pagination";
 import { Grid } from "react-loader-spinner";
 import CartList from "./CartList";
+import Loder from "../../Loder/Loder";
 
 const sortOptions = [
   { name: "Best Rating", sort: "rating", order: "desc", current: false },
@@ -104,7 +99,6 @@ export default function ProductList() {
   useEffect(() => {
     const pagination = { _page: page, _limit: ITEMS_PER_PAGE };
     dispatch(fetchProductsByFiltersAsync({ filter, sort, pagination }));
-    // TODO : Server will filter deleted products
   }, [dispatch, filter, sort, page]);
 
   useEffect(() => {
@@ -114,7 +108,7 @@ export default function ProductList() {
   useEffect(() => {
     dispatch(fetchBrandsAsync());
     dispatch(fetchCategoriesAsync());
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="bg-white">
@@ -126,77 +120,8 @@ export default function ProductList() {
           filters={filters}
         ></MobileFilter>
 
-        <main className="mx-auto px-2 sm:px-6 lg:px-6">
-          <div className="flex items-baseline justify-between border-b border-gray-300 pb-4 pt-10">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-              All Products
-            </h1>
-
-            <div className="flex items-center">
-              <Menu as="div" className="relative inline-block text-left">
-                <div>
-                  <Menu.Button className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
-                    Sort
-                    <ChevronDownIcon
-                      className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                      aria-hidden="true"
-                    />
-                  </Menu.Button>
-                </div>
-
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="py-1">
-                      {sortOptions.map((option) => (
-                        <Menu.Item key={option.name}>
-                          {({ active }) => (
-                            <p
-                              onClick={(e) => handleSort(e, option)}
-                              className={classNames(
-                                option.current
-                                  ? "font-medium text-gray-900"
-                                  : "text-gray-500",
-                                active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm"
-                              )}
-                            >
-                              {option.name}
-                            </p>
-                          )}
-                        </Menu.Item>
-                      ))}
-                    </div>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
-
-              <button
-                type="button"
-                className="-m-2 ml-5 p-2 text-gray-400 hover:text-gray-500 sm:ml-7"
-              >
-                <span className="sr-only">View grid</span>
-                <Squares2X2Icon className="h-5 w-5" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
-                onClick={() => setMobileFiltersOpen(true)}
-              >
-                <span className="sr-only">Filters</span>
-                <FunnelIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-
-          <section aria-labelledby="products-heading" className="pb-20 pt-1">
+        <main className="mx-auto px-0 sm:px-6 lg:px-6">
+          <section aria-labelledby="products-heading" className="pb-20 pt-0">
             <h2 id="products-heading" className="sr-only">
               Products
             </h2>
@@ -205,16 +130,17 @@ export default function ProductList() {
               <DesktopFilter
                 handleFilter={handleFilter}
                 filters={filters}
+                handleSort={handleSort}
               ></DesktopFilter>
-              {/* Product grid */}
-              <div className="lg:col-span-6">
+              <div
+                className="lg:col-span-6"
+                style={{ boxShadow: "2px 4px 3px -2px rgba(0,0,0,0.05) inset" }}
+              >
                 <ProductGrid products={products} status={status}></ProductGrid>
               </div>
-              {/* Product grid end */}
             </div>
           </section>
 
-          {/* section of product and filters ends */}
           <Pagination
             page={page}
             setPage={setPage}
@@ -346,59 +272,126 @@ function MobileFilter({
   );
 }
 
-function DesktopFilter({ handleFilter, filters }) {
+function DesktopFilter({
+  handleFilter,
+  filters,
+  handleSort,
+  setMobileFiltersOpen,
+}) {
   return (
-    <form className="hidden lg:block max-h-[1000px] overflow-y-auto">
-      {filters.map((section) => (
-        <Disclosure
-          as="div"
-          key={section.id}
-          className="border-b border-gray-300 py-6"
-        >
-          {({ open }) => (
-            <>
-              <h3 className="-my-3 flow-root">
-                <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-                  <span className="font-medium text-gray-900">
-                    {section.name}
-                  </span>
-                  <span className="ml-6 flex items-center">
-                    {open ? (
-                      <MinusIcon className="h-5 w-5" aria-hidden="true" />
-                    ) : (
-                      <PlusIcon className="h-5 w-5" aria-hidden="true" />
-                    )}
-                  </span>
-                </Disclosure.Button>
-              </h3>
-              <Disclosure.Panel className="pt-6">
-                <div className="space-y-4">
-                  {section.options.map((option, optionIdx) => (
-                    <div key={option.value} className="flex items-center">
-                      <input
-                        id={`filter-${section.id}-${optionIdx}`}
-                        name={`${section.id}[]`}
-                        defaultValue={option.value}
-                        type="checkbox"
-                        defaultChecked={option.checked}
-                        onChange={(e) => handleFilter(e, section, option)}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <label
-                        htmlFor={`filter-${section.id}-${optionIdx}`}
-                        className="ml-3 text-sm text-gray-600"
-                      >
-                        {option.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </Disclosure.Panel>
-            </>
-          )}
+    <div
+      className="pe-4"
+      style={{
+        boxShadow: "25px 0px 20px -32px rgba(0,0,0,0.45)",
+      }}
+    >
+      {/* header title */}
+      <div className=" pt-5 py-2 font-bold text-secondary font-poppins text-2xl">
+        <h1 className="m-1">All Products</h1>
+      </div>
+
+      <form className="hidden lg:block max-h-[1000px] overflow-y-auto">
+        <div className="flex items-baseline justify-between border-b border-gray-300 pb-1 pt-1">
+          <div className="flex items-center">
+            {/* Cut filter */}
+            <button
+              type="button"
+              className=" ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
+              onClick={() => setMobileFiltersOpen(true)}
+            >
+              <span className="sr-only">Filters</span>
+              <FunnelIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <Disclosure as="div" className="">
+          <div className="py-1">
+            {sortOptions.map((option) => (
+              <Disclosure.Button
+                key={option.name}
+                className="flex w-full items-center justify-between bg-white py-1 text-sm text-gray-400 hover:text-gray-500 focus:outline-none focus:ring focus:ring-gray-200"
+                onClick={(e) => handleSort(e, option)}
+              >
+                <p
+                  className={classNames(
+                    option.current
+                      ? "font-medium text-gray-900"
+                      : "text-gray-500",
+                    "px-4 py- text-sm"
+                  )}
+                >
+                  {option.name}
+                </p>
+                {option.current && (
+                  <svg
+                    className="w-4 h-4 text-gray-900 ml-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9 5l7 7-7 7" />
+                  </svg>
+                )}
+              </Disclosure.Button>
+            ))}
+          </div>
         </Disclosure>
-      ))}
-    </form>
+
+        {filters.map((section) => (
+          <Disclosure
+            as="div"
+            key={section.id}
+            className="border-b border-gray-300 py-4"
+          >
+            {({ open }) => (
+              <>
+                <h3 className="-my-3 flow-root">
+                  <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                    <span className="font-medium text-gray-900">
+                      {section.name}
+                    </span>
+                    <span className="ml-6 flex items-center">
+                      {open ? (
+                        <MinusIcon className="h-5 w-5" aria-hidden="true" />
+                      ) : (
+                        <PlusIcon className="h-5 w-5" aria-hidden="true" />
+                      )}
+                    </span>
+                  </Disclosure.Button>
+                </h3>
+                <Disclosure.Panel className="pt-6">
+                  <div className="space-y-4">
+                    {section.options.map((option, optionIdx) => (
+                      <div key={option.value} className="flex items-center">
+                        <input
+                          id={`filter-${section.id}-${optionIdx}`}
+                          name={`${section.id}[]`}
+                          defaultValue={option.value}
+                          type="checkbox"
+                          defaultChecked={option.checked}
+                          onChange={(e) => handleFilter(e, section, option)}
+                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <label
+                          htmlFor={`filter-${section.id}-${optionIdx}`}
+                          className="ml-3 text-sm text-gray-600"
+                        >
+                          {option.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </Disclosure.Panel>
+              </>
+            )}
+          </Disclosure>
+        ))}
+      </form>
+    </div>
   );
 }
 
@@ -408,16 +401,9 @@ function ProductGrid({ products, status }) {
       <div className="mx-auto w-full px-4 py-5 sm:px-0 sm:py-5 lg:max-w-full lg:px-1 ">
         <div className="mx-auto grid grid-cols-1 gap-x-15 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5  ">
           {status === "loading" ? (
-            <Grid
-              height="100"
-              width="100"
-              color="rgb(79, 70, 229)"
-              ariaLabel="grid-loading"
-              radius="12.5"
-              wrapperStyle={{}}
-              wrapperClass=""
-              visible={true}
-            />
+            <>
+              <Loder isLoding={status === "loading"} />
+            </>
           ) : null}
           {products.map((product) => (
             <CartList

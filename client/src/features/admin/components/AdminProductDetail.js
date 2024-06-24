@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { RadioGroup } from "@headlessui/react";
@@ -11,6 +10,7 @@ import {
   selectProductById,
   selectProductListStatus,
 } from "../../product/productSlice";
+import Loder from "../../Loder/Loder";
 
 // const colors = [
 //   { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
@@ -80,17 +80,9 @@ export default function AdminProductDetail() {
   return (
     <div className="bg-white">
       {status === "loading" ? (
-        // <Grid
-        //   height="80"
-        //   width="80"
-        //   color="rgb(79, 70, 229) "
-        //   ariaLabel="grid-loading"
-        //   radius="12.5"
-        //   wrapperStyle={{}}
-        //   wrapperClass=""
-        //   visible={true}
-        // />
-        <>"loding"</>
+        <>
+          <Loder isLoding={status === "loading"} />
+        </>
       ) : null}
       {product && (
         <div className="pt-6">

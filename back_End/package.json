@@ -1,7 +1,6 @@
 {
   "name": "e-com",
   "version": "1.0.0",
-  "description": "",
   "main": "Index.js",
   "scripts": {
     "start": "node index.js",
@@ -23,5 +22,6 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0"
-  }
+  },
+  "description": ""
 }

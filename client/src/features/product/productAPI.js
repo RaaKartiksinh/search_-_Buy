@@ -35,7 +35,7 @@ export function updateProduct(update) {
   });
 }
 
-export function fetchProductsByFilters(filter, sort, pagination,admin) {
+export function fetchProductsByFilters(filter, sort, pagination, admin) {
   let queryString = "";
   for (let key in filter) {
     const categoryValues = filter[key];
@@ -51,8 +51,8 @@ export function fetchProductsByFilters(filter, sort, pagination,admin) {
   for (let key in pagination) {
     queryString += `${key}=${pagination[key]}&`;
   }
-  if(admin){
-    queryString+=`admin=true`
+  if (admin) {
+    queryString += `admin=true`;
   }
 
   return new Promise(async (resolve) => {
@@ -77,6 +77,17 @@ export function fetchCategories() {
 export function fetchBrands() {
   return new Promise(async (resolve) => {
     const response = await fetch(url.BackendUrl + "/brands/get");
+    const data = await response.json();
+    resolve({ data });
+  });
+}
+
+export function searchApi(title) {
+  let queryString = `?title=${title}`;
+  return new Promise(async (resolve) => {
+    const response = await fetch(
+      url.BackendUrl + "/products/search" + queryString
+    );
     const data = await response.json();
     resolve({ data });
   });

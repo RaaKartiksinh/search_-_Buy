@@ -18,7 +18,6 @@ const server = express();
 // Mongoose DataBase Connected
 connectToDB();
 // Middlwar
-// server.use(express.static("build"));
 server.use(cookieparser());
 
 server.use(
@@ -27,7 +26,7 @@ server.use(
     exposedHeaders: ["X-Total-Count"],
     credentials: true,
   })
-);
+); 
 
 server.use(
   session({

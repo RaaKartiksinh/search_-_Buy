@@ -6,6 +6,7 @@ import {
   fetchProductById,
   createProduct,
   updateProduct,
+  searchApi,
 } from "./productAPI";
 
 const initialState = {
@@ -15,6 +16,8 @@ const initialState = {
   status: "idle",
   totalItems: 0,
   selectedProduct: null,
+  searchData: [],
+  searchstatus: "idle",
 };
 
 export const fetchProductByIdAsync = createAsyncThunk(
@@ -28,8 +31,13 @@ export const fetchProductByIdAsync = createAsyncThunk(
 
 export const fetchProductsByFiltersAsync = createAsyncThunk(
   "product/fetchProductsByFilters",
-  async ({ filter, sort, pagination ,admin}) => {
-    const response = await fetchProductsByFilters(filter, sort, pagination,admin);
+  async ({ filter, sort, pagination, admin }) => {
+    const response = await fetchProductsByFilters(
+      filter,
+      sort,
+      pagination,
+      admin
+    );
     // The value we return becomes the `fulfilled` action payload
     return response.data;
   }
@@ -64,6 +72,14 @@ export const updateProductAsync = createAsyncThunk(
   "product/update",
   async (update) => {
     const response = await updateProduct(update);
+    return response.data;
+  }
+);
+// searchApi
+export const searchProductAsync = createAsyncThunk(
+  "product/search",
+  async (title) => {
+    const response = await searchApi(title);
     return response.data;
   }
 );
@@ -124,6 +140,13 @@ export const productSlice = createSlice({
         );
         state.products[index] = action.payload;
         state.selectedProduct = action.payload;
+      })
+      .addCase(searchProductAsync.pending, (state) => {
+        state.searchstatus = "loading";
+      })
+      .addCase(searchProductAsync.fulfilled, (state, action) => {
+        state.searchstatus = "idle";
+        state.searchData = action.payload;
       });
   },
 });
@@ -135,7 +158,7 @@ export const selectBrands = (state) => state.product.brands;
 export const selectCategories = (state) => state.product.categories;
 export const selectProductById = (state) => state.product.selectedProduct;
 export const selectProductListStatus = (state) => state.product.status;
-
 export const selectTotalItems = (state) => state.product.totalItems;
+export const selectSearchData = (state) => state.product.searchData;
 
 export default productSlice.reducer;

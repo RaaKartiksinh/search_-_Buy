@@ -11,6 +11,7 @@ import {
 import { useParams } from "react-router-dom";
 import { addToCartAsync, selectItems } from "../../cart/cartSlice";
 import { useAlert } from "react-alert";
+import Loder from "../../Loder/Loder";
 
 // const colors = [
 //   { name: "White", class: "bg-white", selectedClass: "ring-gray-400" },
@@ -42,18 +43,21 @@ function classNames(...classes) {
 // TODO : Loading UI
 
 export default function ProductDetail() {
+  const product = useSelector(selectProductById);
+  console.log(product);
   const [selectedColor, setSelectedColor] = useState({});
   const [selectedSize, setSelectedSize] = useState({});
   const items = useSelector(selectItems);
-  const product = useSelector(selectProductById);
   const dispatch = useDispatch();
   const params = useParams();
   const alert = useAlert();
   const status = useSelector(selectProductListStatus);
+
   const handleCart = (e) => {
     e.preventDefault();
     if (items.findIndex((item) => item.product.id === product.id) < 0) {
       console.log({ items, product });
+
       const newItem = {
         product: product.id,
         quantity: 1,
@@ -64,37 +68,38 @@ export default function ProductDetail() {
       if (selectedSize) {
         newItem.size = selectedSize;
       }
-      console.log(newItem);
+      console.log(newItem, "LL");
       dispatch(addToCartAsync(newItem));
       alert.success("Item added to Cart");
     } else {
       alert.error("Item Already added");
     }
   };
-  console.log(selectedColor);
+
+  useEffect(() => {
+    if (product && product.colors && product.colors.length > 0) {
+      setSelectedColor(product.colors[0]);
+    }
+    if (product && product.sizes && product.sizes.length > 0) {
+      setSelectedSize(product.sizes[0]);
+    }
+  }, [product]);
 
   useEffect(() => {
     dispatch(fetchProductByIdAsync(params.id));
   }, [dispatch, params.id]);
 
   return (
-    <div className="bg-white">
+    <div className=" bg-backGround2">
       {status === "loading" ? (
-        // <Grid
-        //   height="80"
-        //   width="80"
-        //   color="rgb(79, 70, 229) "
-        //   ariaLabel="grid-loading"
-        //   radius="12.5"
-        //   wrapperStyle={{}}
-        //   wrapperClass=""
-        //   visible={true}
-        // />
-        <>"loding"</>
+        <>
+          {/* <>"loding"</> */}
+          <Loder isLoding={status === "loading"} />
+        </>
       ) : null}
       {product && (
         <div className="pt-6">
-          <nav aria-label="Breadcrumb">
+          <nav aria-label="Breadcrumb ">
             <ol className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
               {product.breadcrumbs &&
                 product.breadcrumbs.map((breadcrumb) => (
@@ -127,12 +132,17 @@ export default function ProductDetail() {
                 >
                   {product.title}
                 </a>
+                {product.stock <= 0 && (
+                  <span className="text-sm text-red-400 ms-3">
+                    Out of stock
+                  </span>
+                )}
               </li>
             </ol>
           </nav>
 
           {/* Image gallery */}
-          <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
+          <div className="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8 bo bg-white rounded-xl pt-3	">
             <div className="aspect-h-4 aspect-w-3 hidden overflow-hidden rounded-lg lg:block">
               <img
                 src={product.images[0]}
@@ -166,8 +176,8 @@ export default function ProductDetail() {
           </div>
 
           {/* Product info */}
-          <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
-            <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
+          <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16 bg-white">
+            <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8  ">
               <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                 {product.title}
               </h1>
@@ -211,7 +221,6 @@ export default function ProductDetail() {
                 {product.colors && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-900">Color</h3>
-
                     <RadioGroup
                       value={selectedColor}
                       onChange={setSelectedColor}
@@ -229,8 +238,12 @@ export default function ProductDetail() {
                               className={({ active, checked }) =>
                                 classNames(
                                   color.hex,
-                                  active && checked ? "ring ring-offset-1" : "",
-                                  !active && checked ? "ring-2" : "",
+                                  active && checked
+                                    ? "ring ring-offset-1 ring-secondary"
+                                    : "",
+                                  !active && checked
+                                    ? "ring-2 ring-secondary"
+                                    : "",
                                   "relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none"
                                 )
                               }
@@ -238,17 +251,11 @@ export default function ProductDetail() {
                               <RadioGroup.Label as="span" className="sr-only">
                                 {color.colorName}
                               </RadioGroup.Label>
-                              {/* <span
-                              aria-hidden="true"
-                              className={classNames(
-                                { backgroundColor: color.hex },
-                                "h-8 w-8 rounded-full border border-black border-opacity-10"
-                              )}
-                            /> */}
+
                               {console.log(color.hex.slice(1))}
                               <span
                                 aria-hidden="true"
-                                className={` h-8 w-8 rounded-full border border-black border-opacity-10`}
+                                className={` h-8 w-8 rounded-full rounded-sec border border-black border-opacity-10`}
                                 style={{ backgroundColor: color.hex }}
                               />
                             </RadioGroup.Option>
@@ -293,7 +300,7 @@ export default function ProductDetail() {
                                   size.inStock
                                     ? "cursor-pointer bg-white text-gray-900 shadow-sm"
                                     : "cursor-not-allowed bg-gray-50 text-gray-200",
-                                  active ? "ring-2 ring-indigo-500" : "",
+                                  active ? "ring-2 ring-secondary" : "",
                                   "group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6"
                                 )
                               }
@@ -308,7 +315,7 @@ export default function ProductDetail() {
                                       className={classNames(
                                         active ? "border" : "border-2",
                                         checked
-                                          ? "border-indigo-500"
+                                          ? "border-secondary"
                                           : "border-transparent",
                                         "pointer-events-none absolute -inset-px rounded-md"
                                       )}
@@ -343,13 +350,29 @@ export default function ProductDetail() {
                     </RadioGroup>
                   </div>
                 )}
+                {/* <button
+                  onClick={handleCart}
+                  type="submit"
+                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-secondary px-8 py-3 text-base font-medium text-white hover:bg-textcolor  focus:ring-primary focus:outline-none focus:ring-2  focus:ring-offset-2"
+              style={product.stock ? "desavle " : ""}
+                >
+                  Add to Cart
+                </button> */}
+
                 <button
                   onClick={handleCart}
                   type="submit"
-                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-secondary px-8 py-3 text-base font-medium text-white hover:bg-textcolor focus:ring-primary focus:outline-none focus:ring-2 focus:ring-offset-2"
+                  disabled={!product.stock}
                 >
                   Add to Cart
                 </button>
+
+                {product.stock <= 0 && (
+                  <span className="text-sm text-red-400 ms-3">
+                    Out of stock
+                  </span>
+                )}
               </form>
             </div>
 

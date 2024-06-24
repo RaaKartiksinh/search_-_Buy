@@ -31,6 +31,7 @@ import AdminOrdersPage from "./pages/AdminOrdersPage";
 import { positions, Provider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import Loder from "./features/Loder/Loder";
 
 const options = {
   timeout: 5000,
@@ -179,6 +180,7 @@ function App() {
           </Provider>
         )}
       </div>
+      {/* <Loder isLoding={true} /> */}
     </>
   );
 }
